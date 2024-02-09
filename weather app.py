@@ -1,73 +1,44 @@
-import requests
-from typing import Optional
+from tkinter import *
 
-def get_weather(api_key: str, city: str) -> None:
+def on_drag(e):
+    bmi = w.get() / (h.get() / 100) ** 2
+    tv_bmi.set(f'BMI = {bmi:.2f}')  # f-strings Python 3.6
+    color_zone = ""
+    if bmi > 34.9:
+        color_zone = "red"
+        data["text"] = "Exteremely obese"
+    elif bmi >= 29.9:
+        color_zone = "orange"
+        data["text"] = "Obese"
+    elif bmi >= 24.6:
+        color_zone = "yellow"
+        data["text"] = "Over Weight"
+    elif bmi >= 18.5:
+        color_zone = "green"
+        data["text"] = "Normal"
+    else:
+        color_zone = "sky blue"
+        data["text"] = "Under Weight"
+    lbl_bmi["bg"] = color_zone
 
-    if not api_key:
-        raise ValueError("API key must be provided")
-    if not city:
-        raise ValueError("City must be provided")
-
-    base_url = "http://api.openweathermap.org/data/2.5/weather"
-    params = {
-        "q": city,
-        "appid": api_key,
-        "units": "metric",
-
-    }
-
-    try:
-        response = requests.get(base_url, params=params)
-        data = response. json()
-
-        if response.status_code == 200:
-            # Extract relevant information from the API response
-            temperature = data["main"]["temp"]
-            feels_like = data["main"]["feels_like"]
-            temp_min = data["main"]["temp_min"]
-            temp_max = data["main"]["temp_max"]
-            pressure = data["main"] ["pressure"]
-            humidity = data["main"]["humidity"]
-            description = data["weather"][0]["description"]
-            wind_speed = data["wind"] ["speed"]
-            clouds = data["clouds"]["all"]
-            visibility = data["visibility"]
-            dew_point: Optional[float] = data.get("main", {}) .get("dew_point")
-            rain: Optional[float] = data.get("rain", {}) .get("1h")
-
-            print(f"Weather in {city}:")
-
-            print(f"\tTemperature: {temperature}℃")
-
-            print(f"\tFeels Like: {feels_like}°C")
-            print(f"\tMinimum Temperature: {temp_min}℃")
-
-            print(f"\tMaximum Temperature: {temp_max}°℃")
-
-            print(f"\tHumidity: {humidity}%")
-
-            print(f"\tWind Speed: {wind_speed} m/s")
-
-            print(f"\tCloud Coverage: {clouds}%")
-
-            print(f"\tVisibility: {visibility} m")
-
-            print(f"\tDew Point: {dew_point}°c")
-
-            print(f"\tPressure: {pressure} hPa")
-
-            print(f"\tRain: {rain} mm")
-        else:
-            print(f"Error: {data['message']}")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-def main() -> None:
-    api_key = "6ac51341fbe25af0043f9a7e166961c4"
-    city = input("Enter the city name or PIN code: ")
-
-    get_weather(api_key, city)
-
-if __name__=="__main__":
-    main()
+root = Tk()
+root.title('Body Mass Index')
+root.option_add("*Font", "consolas 20")
+tv_bmi = StringVar()
+Label(root, text="weight (kg.)").grid(row=0, column=0, sticky="s", padx=10)
+Label(root, text="height (cm.)").grid(row=1, column=0, sticky="s", padx=10)
+w = Scale(root, from_=1, to=150, orient=HORIZONTAL, length=200, width=30)
+w.set(75)
+w.grid(row=0, column=1)
+w.bind('<B1-Motion>', on_drag)
+w.bind('<Button-1>', on_drag)
+h = Scale(root, from_=1, to=250, orient=HORIZONTAL, length=200, width=30)
+h.set(125)
+h.grid(row=1, column=1)
+h.bind('<B1-Motion>', on_drag)
+h.bind('<Button-1>', on_drag)
+lbl_bmi = Label(root, textvariable=tv_bmi)
+lbl_bmi.grid(row=3, columnspan=2, sticky="news")
+data = Label(root,text = "")
+data.grid(row=4, columnspan=2, sticky="news")
+root.mainloop()
